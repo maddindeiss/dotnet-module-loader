@@ -57,7 +57,12 @@ namespace ModuleLoader.Core
             {
                 foreach (var featureModule in FeatureModules)
                 {
-                    featureModule.OnApplicationInitialization(scope.ServiceProvider);
+                    featureModule.OnApplicationStartup(scope.ServiceProvider);
+                }
+
+                foreach (var featureModule in FeatureModules)
+                {
+                    featureModule.OnPostApplicationStartup(scope.ServiceProvider);
                 }
             }
         }

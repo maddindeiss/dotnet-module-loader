@@ -17,7 +17,12 @@ namespace ModuleLoader.Core
 
         }
 
-        public virtual void OnApplicationInitialization(IServiceProvider serviceProvider)
+        public virtual void OnApplicationStartup(IServiceProvider serviceProvider)
+        {
+
+        }
+
+        public void OnPostApplicationStartup(IServiceProvider serviceProvider)
         {
 
         }

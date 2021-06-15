@@ -21,7 +21,7 @@ namespace Module1
             serviceCollection.AddSingleton<ISayService, SayService>();
         }
 
-        public override void OnApplicationInitialization(IServiceProvider serviceProvider)
+        public override void OnApplicationStartup(IServiceProvider serviceProvider)
         {
             var sayService = serviceProvider.GetRequiredService<ISayService>();
             sayService.SayHello();
