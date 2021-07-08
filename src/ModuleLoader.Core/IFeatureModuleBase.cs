@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ModuleLoader.Core
@@ -8,6 +9,6 @@ namespace ModuleLoader.Core
         Type MainFeatureModule { get; }
         IServiceProvider ServiceProvider { get; set; }
         IServiceCollection ServiceCollection { get; }
-        void Initialize(IServiceProvider serviceProvider);
+        void Initialize(IApplicationBuilder app, IServiceProvider serviceProvider);
     }
 }

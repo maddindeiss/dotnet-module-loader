@@ -15,7 +15,7 @@ namespace ModuleLoader.Core.Extensions
         public static void Initialize(this IApplicationBuilder app, IServiceProvider serviceProvider)
         {
             var application = app.ApplicationServices.GetRequiredService<IFeatureModuleBase>();
-            application.Initialize(serviceProvider);
+            application.Initialize(app, serviceProvider);
         }
     }
 }

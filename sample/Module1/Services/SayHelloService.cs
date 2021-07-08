@@ -6,7 +6,7 @@ namespace Module1.Services
     {
         public SayHelloService()
         {
-            Console.WriteLine("HELLO FROM SAYHELLO SERVICE");
+            // Console.WriteLine("HELLO FROM SAYHELLO SERVICE");
         }
 
         public void SayHello() {

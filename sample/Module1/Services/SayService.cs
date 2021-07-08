@@ -4,14 +4,16 @@ namespace Module1.Services
 {
     public class SayService : ISayService
     {
+        private readonly ISayHelloService _sayHelloService;
         public SayService(ISayHelloService sayHelloService)
         {
-            Console.WriteLine("HELLO FROM HELLO SERVICE");
-            sayHelloService.SayHello();
+            _sayHelloService = sayHelloService;
+            // Console.WriteLine("HELLO FROM HELLO SERVICE");
         }
 
-        public void SayHello() {
-            Console.WriteLine("HELLO FROM HELLO SERVICE... AGAIN");
+        public void Say() {
+            Console.WriteLine("HELLO FROM SAY SERVICE");
+            _sayHelloService.SayHello();
         }
     }
 }

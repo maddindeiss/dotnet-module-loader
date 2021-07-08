@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ModuleLoader.Core
@@ -23,6 +24,11 @@ namespace ModuleLoader.Core
         }
 
         public void OnPostApplicationStartup(IServiceProvider serviceProvider)
+        {
+
+        }
+
+        public virtual void ConfigureApplicationInitialization(IApplicationBuilder app, IServiceProvider serviceProvider)
         {
 
         }

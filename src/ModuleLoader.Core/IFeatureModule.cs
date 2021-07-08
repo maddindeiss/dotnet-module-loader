@@ -1,4 +1,5 @@
 using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ModuleLoader.Core
@@ -7,7 +8,7 @@ namespace ModuleLoader.Core
     {
         void PreConfigureServices(IServiceCollection serviceCollection);
         void ConfigureServices(IServiceCollection serviceCollection);
-        void OnApplicationStartup(IServiceProvider serviceProvider);
-        void OnPostApplicationStartup(IServiceProvider serviceProvider);
+        void OnApplicationInitialization(IServiceProvider serviceProvider);
+        void ConfigureApplicationInitialization(IApplicationBuilder app, IServiceProvider serviceProvider);
     }
 }
