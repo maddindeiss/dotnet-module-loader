@@ -3,11 +3,11 @@
 namespace ModuleLoader.Core.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class InitializeModuleService: Attribute
+    public class InitializeModule: Attribute
     {
         public Type InitializeService { get; }
 
-        public InitializeModuleService(Type initializeService)
+        public InitializeModule(Type initializeService)
         {
             InitializeService = initializeService;
         }

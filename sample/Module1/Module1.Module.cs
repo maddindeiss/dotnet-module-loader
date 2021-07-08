@@ -8,8 +8,8 @@ using Module2;
 namespace Module1
 {
     [IsDependingOnModule(typeof(Module2Module))]
-    [InitializeModuleService(typeof(InitializeService))]
-    [InitializeModuleService(typeof(InitializeService2))]
+    [InitializeModule(typeof(InitializeService))]
+    [InitializeModule(typeof(InitializeService2))]
     public class Module1Module: ModuleLoader.Core.FeatureModule
     {
         public Module1Module()

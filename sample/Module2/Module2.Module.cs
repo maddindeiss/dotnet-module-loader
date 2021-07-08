@@ -5,7 +5,7 @@ using ModuleLoader.Core.Attributes;
 
 namespace Module2
 {
-    [InitializeModuleService(typeof(InitializeService))]
+    [InitializeModule(typeof(InitializeService))]
     public class Module2Module: ModuleLoader.Core.FeatureModule
     {
         public Module2Module()

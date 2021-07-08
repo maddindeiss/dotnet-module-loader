@@ -59,12 +59,12 @@ namespace ModuleLoader.Core
         {
             foreach (var featureModule in FeatureModules)
             {
-                var initializeAttributes = featureModule.GetType().GetCustomAttributes<InitializeModuleService>();
+                var initializeAttributes = featureModule.GetType().GetCustomAttributes<InitializeModule>();
 
                 foreach (var initializeAttribute in initializeAttributes)
                 {
                     var serviceType = initializeAttribute.InitializeService;
-                    ServiceCollection.AddTransient(typeof(IInitializeService),serviceType);
+                    ServiceCollection.AddTransient(typeof(IInitializeService), serviceType);
                 }
             }
         }
