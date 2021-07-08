@@ -4,11 +4,12 @@ using ModuleLoader.Core.Attributes;
 using Microsoft.Extensions.DependencyInjection;
 using Module1.Services;
 using Module2;
-using ModuleLoader.Core;
 
 namespace Module1
 {
     [IsDependingOnModule(typeof(Module2Module))]
+    [InitializeModuleService(typeof(InitializeService))]
+    [InitializeModuleService(typeof(InitializeService2))]
     public class Module1Module: ModuleLoader.Core.FeatureModule
     {
         public Module1Module()
@@ -19,7 +20,7 @@ namespace Module1
         public override void ConfigureServices(IServiceCollection serviceCollection)
         {
             Console.WriteLine("Module1Module ConfigureServices");
-            serviceCollection.AddTransient<IServiceInitialization, InitializeService>();
+            // serviceCollection.AddTransient<IServiceInitialization, InitializeService>();
             serviceCollection.AddSingleton<ISayHelloService, SayHelloService>();
             serviceCollection.AddSingleton<ISayService, SayService>();
         }
@@ -30,7 +31,7 @@ namespace Module1
             // sayService.SayHello();
         }
 
-        public override void ConfigureApplicationInitialization(IApplicationBuilder app, IServiceProvider serviceProvider)
+        public override void ConfigureApplication(IApplicationBuilder app, IServiceProvider serviceProvider)
         {
             app.UseStaticFiles();
         }

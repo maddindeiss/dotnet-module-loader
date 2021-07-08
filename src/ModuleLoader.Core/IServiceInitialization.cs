@@ -1,6 +1,6 @@
 ﻿namespace ModuleLoader.Core
 {
-    public interface IServiceInitialization
+    public interface IInitializeService
     {
         void Initialize();
     }

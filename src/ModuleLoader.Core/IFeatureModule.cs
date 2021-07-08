@@ -8,7 +8,9 @@ namespace ModuleLoader.Core
     {
         void PreConfigureServices(IServiceCollection serviceCollection);
         void ConfigureServices(IServiceCollection serviceCollection);
-        void OnApplicationInitialization(IServiceProvider serviceProvider);
-        void ConfigureApplicationInitialization(IApplicationBuilder app, IServiceProvider serviceProvider);
+        void ConfigureApplication(IApplicationBuilder app, IServiceProvider serviceProvider);
+
+
+        void OnApplicationStartup(IServiceProvider serviceProvider);
     }
 }

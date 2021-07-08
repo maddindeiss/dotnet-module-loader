@@ -18,17 +18,12 @@ namespace ModuleLoader.Core
 
         }
 
+        public virtual void ConfigureApplication(IApplicationBuilder app, IServiceProvider serviceProvider)
+        {
+
+        }
+
         public virtual void OnApplicationStartup(IServiceProvider serviceProvider)
-        {
-
-        }
-
-        public void OnPostApplicationStartup(IServiceProvider serviceProvider)
-        {
-
-        }
-
-        public virtual void ConfigureApplicationInitialization(IApplicationBuilder app, IServiceProvider serviceProvider)
         {
 
         }

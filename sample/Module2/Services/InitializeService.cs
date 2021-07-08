@@ -1,9 +1,9 @@
 ﻿using System;
 using ModuleLoader.Core;
 
-namespace Module1.Services
+namespace Module2.Services
 {
-    public class InitializeService: IServiceInitialization
+    public class InitializeService: IInitializeService
     {
         public InitializeService()
         {

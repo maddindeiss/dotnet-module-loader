@@ -25,6 +25,7 @@ namespace ModuleLoader.Core
 
             FeatureModules = LoadFeatureModules(serviceCollection, mainFeatureModule);
             AddServiceCollection();
+            AddInitializeServices();
         }
 
         public void Initialize(IApplicationBuilder app, IServiceProvider serviceProvider)
@@ -54,23 +55,35 @@ namespace ModuleLoader.Core
             }
         }
 
+        private void AddInitializeServices()
+        {
+            foreach (var featureModule in FeatureModules)
+            {
+                var initializeAttributes = featureModule.GetType().GetCustomAttributes<InitializeModuleService>();
+
+                foreach (var initializeAttribute in initializeAttributes)
+                {
+                    var serviceType = initializeAttribute.InitializeService;
+                    ServiceCollection.AddTransient(typeof(IInitializeService),serviceType);
+                }
+            }
+        }
+
         private void AddServiceProvider()
         {
             using (var scope = ServiceProvider.CreateScope())
             {
                 foreach (var featureModule in FeatureModules)
                 {
-                    featureModule.ConfigureApplicationInitialization(ApplicationBuilder, scope.ServiceProvider);
+                    featureModule.ConfigureApplication(ApplicationBuilder, scope.ServiceProvider);
                 }
 
                 foreach (var featureModule in FeatureModules)
                 {
-                    featureModule.OnApplicationInitialization(scope.ServiceProvider);
+                    featureModule.OnApplicationStartup(scope.ServiceProvider);
                 }
 
-                // TODO: add services somehow to the DI here. Not in the Modules itself. Maybe create Attribute for Module. Something like "HasInitialization(typeof(The Service))"
-                // TODO: rename Interface
-                var services = scope.ServiceProvider.GetServices<IServiceInitialization>();
+                var services = scope.ServiceProvider.GetServices<IInitializeService>();
                 foreach (var service in services)
                 {
                     service.Initialize();
