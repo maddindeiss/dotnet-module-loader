@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using ModuleLoader.Core.Attributes;
 
 namespace ModuleLoader.Core
@@ -14,7 +15,7 @@ namespace ModuleLoader.Core
         public IServiceProvider ServiceProvider { get; set; }
         public IServiceCollection ServiceCollection { get; }
         public IApplicationBuilder ApplicationBuilder { get; set; }
-        public IReadOnlyList<IFeatureModule> FeatureModules { get; }
+        public IReadOnlyList<FeatureModuleInfo> FeatureModuleInfos { get; }
 
         public FeatureModuleBase(Type mainFeatureModule, IServiceCollection serviceCollection)
         {
@@ -23,43 +24,43 @@ namespace ModuleLoader.Core
 
             serviceCollection.AddSingleton<IFeatureModuleBase>(this);
 
-            FeatureModules = LoadFeatureModules(serviceCollection, mainFeatureModule);
+            FeatureModuleInfos = LoadFeatureModules(serviceCollection, mainFeatureModule);
             AddServiceCollection();
             AddInitializeServices();
         }
 
         public void Initialize(IApplicationBuilder app, IServiceProvider serviceProvider)
         {
-            Console.WriteLine("Initialize");
             ApplicationBuilder = app;
             ServiceProvider = serviceProvider;
 
+            LogModuleInfo(serviceProvider);
             AddServiceProvider();
         }
 
         private void AddServiceCollection()
         {
-            foreach (var featureModule in FeatureModules)
+            foreach (var featureModuleInfo in FeatureModuleInfos)
             {
-                ((FeatureModule) featureModule).ServiceCollection = ServiceCollection;
+                ((FeatureModule) featureModuleInfo.Instance).ServiceCollection = ServiceCollection;
             }
 
-            foreach (var featureModule in FeatureModules)
+            foreach (var featureModuleInfo in FeatureModuleInfos)
             {
-                featureModule.PreConfigureServices(ServiceCollection);
+                featureModuleInfo.Instance.PreConfigureServices(ServiceCollection);
             }
 
-            foreach (var featureModule in FeatureModules)
+            foreach (var featureModuleInfo in FeatureModuleInfos)
             {
-                featureModule.ConfigureServices(ServiceCollection);
+                featureModuleInfo.Instance.ConfigureServices(ServiceCollection);
             }
         }
 
         private void AddInitializeServices()
         {
-            foreach (var featureModule in FeatureModules)
+            foreach (var featureModuleInfo in FeatureModuleInfos)
             {
-                var initializeAttributes = featureModule.GetType().GetCustomAttributes<InitializeModule>();
+                var initializeAttributes = featureModuleInfo.Type.GetCustomAttributes<InitializeModule>();
 
                 foreach (var initializeAttribute in initializeAttributes)
                 {
@@ -73,14 +74,14 @@ namespace ModuleLoader.Core
         {
             using (var scope = ServiceProvider.CreateScope())
             {
-                foreach (var featureModule in FeatureModules)
+                foreach (var featureModuleInfo in FeatureModuleInfos)
                 {
-                    featureModule.ConfigureApplication(ApplicationBuilder, scope.ServiceProvider);
+                    featureModuleInfo.Instance.ConfigureApplication(ApplicationBuilder, scope.ServiceProvider);
                 }
 
-                foreach (var featureModule in FeatureModules)
+                foreach (var featureModuleInfo in FeatureModuleInfos)
                 {
-                    featureModule.OnApplicationStartup(scope.ServiceProvider);
+                    featureModuleInfo.Instance.OnApplicationStartup(scope.ServiceProvider);
                 }
 
                 var services = scope.ServiceProvider.GetServices<IInitializeService>();
@@ -91,31 +92,40 @@ namespace ModuleLoader.Core
             }
         }
 
-        private IReadOnlyList<IFeatureModule> LoadFeatureModules(IServiceCollection serviceCollection, Type mainFeatureModule)
+        private void LogModuleInfo(IServiceProvider serviceProvider)
         {
-            Console.WriteLine("Try to load FeatureModules...");
+            var logger = serviceProvider.GetRequiredService<ILogger<FeatureModuleBase>>();
 
+            var modulesString = $"Loaded the following {FeatureModuleInfos.Count} modules: \n";
+
+            foreach (var featureModuleInfo in FeatureModuleInfos)
+            {
+                modulesString += "   -> " + featureModuleInfo.Type.FullName + "\n";
+            }
+            logger.LogInformation(modulesString);
+        }
+
+        private IReadOnlyList<FeatureModuleInfo> LoadFeatureModules(IServiceCollection serviceCollection, Type mainFeatureModule)
+        {
             var featureModuleInfos = new List<FeatureModuleInfo>();
-            var featureModuleInstances = new List<IFeatureModule>();
 
             var featureModuleTypes = new List<Type>();
             FindModulesRecursive(featureModuleTypes, mainFeatureModule);
 
-            Console.WriteLine($"Found '{featureModuleTypes.Count}' modules to load");
-            Console.WriteLine($"modules found:");
             foreach (var moduleType in featureModuleTypes)
             {
-                Console.WriteLine($"* {moduleType.AssemblyQualifiedName}");
                 var moduleInstance = (IFeatureModule)Activator.CreateInstance(moduleType);
 
                 if (moduleInstance == null)
                     throw new InvalidOperationException($"Found module '{moduleType.AssemblyQualifiedName}' can not be instantiated");
 
-                featureModuleInstances.Add(moduleInstance);
+                var featureModuleInfo = new FeatureModuleInfo(moduleType, moduleInstance);
+                featureModuleInfos.Add(featureModuleInfo);
+
                 serviceCollection.AddSingleton(moduleType, moduleInstance);
             }
 
-            return featureModuleInstances;
+            return featureModuleInfos;
         }
 
         private void FindModulesRecursive(IList<Type> featureModuleTypes, Type featureModule)

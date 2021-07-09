@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace ModuleLoader.Core
 {
@@ -10,6 +8,7 @@ namespace ModuleLoader.Core
 
         public IFeatureModule Instance { get; }
 
+        /*
         private readonly IList<FeatureModuleInfo> _dependencies;
         public IReadOnlyList<FeatureModuleInfo> Dependencies
         {
@@ -18,10 +17,11 @@ namespace ModuleLoader.Core
                 return _dependencies.ToImmutableList();
             }
         }
+        */
 
         public FeatureModuleInfo(Type type, IFeatureModule instance)
         {
-            _dependencies = new List<FeatureModuleInfo>();
+            // _dependencies = new List<FeatureModuleInfo>();
             Type = type;
             Instance = instance;
         }

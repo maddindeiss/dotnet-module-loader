@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text.Json;
-using Module1;
+﻿using Module1;
 using ModuleLoader.Core.Attributes;
 using Microsoft.Extensions.DependencyInjection;
 using ModuleLoader.Core.Extensions;
@@ -15,7 +13,6 @@ namespace ModuleWeb
         public override void ConfigureServices(IServiceCollection serviceCollection)
         {
             var config = serviceCollection.GetConfiguration();
-            Console.WriteLine(JsonSerializer.Serialize(config.GetChildren()));
         }
     }
 }
