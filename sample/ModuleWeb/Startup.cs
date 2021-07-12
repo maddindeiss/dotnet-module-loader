@@ -19,8 +19,10 @@ namespace ModuleWeb
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMainModule<WebModule>();
-            services.AddControllersWithViews();
+            services.SetRootModule<WebModule>();
+
+            services.AddControllers();
+            // services.AddMvc().AddControllersAsServices();
 
             services.AddOptions<MyOptions>()
                 .Bind(Configuration.GetSection(MyOptions.MyConfig))

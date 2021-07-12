@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ModuleLoader.Core
 {
-    public abstract class FeatureModule : IFeatureModule
+    public abstract class AbstractModule : IAbstractModule
     {
         protected internal IServiceCollection ServiceCollection { get; set; }
 

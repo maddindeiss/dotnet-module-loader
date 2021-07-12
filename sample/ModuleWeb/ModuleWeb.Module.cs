@@ -6,9 +6,12 @@ using ModuleWeb.Services;
 
 namespace ModuleWeb
 {
-    [IsDependingOnModule(typeof(Module1Module))]
+    [Module("web_module")]
+    [DependingOnModuleByName("module1")]
+
+    [DependingOnModule(typeof(Module1Module))]
     [InitializeModule(typeof(InitializeService))]
-    public class WebModule: ModuleLoader.Core.FeatureModule
+    public class WebModule: ModuleLoader.Core.AbstractModule
     {
         public override void ConfigureServices(IServiceCollection serviceCollection)
         {

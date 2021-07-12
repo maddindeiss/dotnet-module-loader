@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using ModuleLoader.Core;
 using ModuleWeb.Options;
 
 namespace ModuleWeb.Services
 {
-    public class InitializeService: IInitializeService
+    public class InitializeService: IModuleInitialization
     {
         private readonly IOptions<MyOptions> _options;
 
@@ -15,7 +16,7 @@ namespace ModuleWeb.Services
             _options = options;
         }
 
-        public void Initialize()
+        public async Task Initialize()
         {
             Console.WriteLine("Module2: InitializeService Initialize");
             Console.WriteLine(_options.Value.Key1);

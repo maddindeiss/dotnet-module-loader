@@ -7,10 +7,11 @@ using Module2;
 
 namespace Module1
 {
-    [IsDependingOnModule(typeof(Module2Module))]
+    [Module("module1")]
+    [DependingOnModule(typeof(Module2Module))]
     [InitializeModule(typeof(InitializeService))]
     [InitializeModule(typeof(InitializeService2))]
-    public class Module1Module: ModuleLoader.Core.FeatureModule
+    public class Module1Module: ModuleLoader.Core.AbstractModule
     {
         public Module1Module()
         {
@@ -20,7 +21,6 @@ namespace Module1
         public override void ConfigureServices(IServiceCollection serviceCollection)
         {
             Console.WriteLine("Module1Module ConfigureServices");
-            // serviceCollection.AddTransient<IServiceInitialization, InitializeService>();
             serviceCollection.AddSingleton<ISayHelloService, SayHelloService>();
             serviceCollection.AddSingleton<ISayService, SayService>();
         }

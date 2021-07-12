@@ -3,11 +3,11 @@
 namespace ModuleLoader.Core.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class IsDependingOnModule: Attribute
+    public class DependingOnModuleByNameAttribute: Attribute
     {
-        public Type DependingModule { get; }
+        public string DependingModule { get; }
 
-        public IsDependingOnModule(Type dependingModule)
+        public DependingOnModuleByNameAttribute(string dependingModule)
         {
             DependingModule = dependingModule;
         }

@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ModuleLoader.Core
 {
-    public interface IFeatureModule
+    public interface IAbstractModule
     {
         void PreConfigureServices(IServiceCollection serviceCollection);
         void ConfigureServices(IServiceCollection serviceCollection);

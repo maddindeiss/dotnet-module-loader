@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 using ModuleLoader.Core;
 
 namespace Module1.Services
 {
-    public class InitializeService: IInitializeService
+    public class InitializeService: IModuleInitialization
     {
         private readonly ISayService _sayService;
 
@@ -13,7 +14,7 @@ namespace Module1.Services
             _sayService = sayService;
         }
 
-        public void Initialize()
+        public async Task Initialize()
         {
             Console.WriteLine("Module1: InitializeService Initialize");
             _sayService.Say();
