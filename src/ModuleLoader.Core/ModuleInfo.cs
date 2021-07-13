@@ -14,6 +14,7 @@ namespace ModuleLoader.Core
         public IList<string> Tags { get; }
 
         private readonly IList<ModuleInfo> _dependencies;
+
         public IReadOnlyList<ModuleInfo> Dependencies
         {
             get
@@ -42,7 +43,7 @@ namespace ModuleLoader.Core
 
         public void AddDependency(ModuleInfo moduleInfo)
         {
-            if(!_dependencies.Contains(moduleInfo))
+            if (!_dependencies.Contains(moduleInfo))
                 _dependencies.Add(moduleInfo);
         }
     }

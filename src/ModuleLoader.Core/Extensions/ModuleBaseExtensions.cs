@@ -6,10 +6,16 @@ namespace ModuleLoader.Core.Extensions
 {
     public static class ModuleBaseExtensions
     {
-        public static ModuleBaseApp SetRootModule<MainFeatureModule>(this IServiceCollection services)
+        public static ModuleBaseApp LoadModulesByDll<MainFeatureModule>(this IServiceCollection services)
             where MainFeatureModule : IAbstractModule
         {
-            return new ModuleBaseApp(typeof(MainFeatureModule), services);
+            return new ModuleBaseApp(typeof(MainFeatureModule), services, LoadingType.ByDll);
+        }
+
+        public static ModuleBaseApp LoadModulesByReference<MainFeatureModule>(this IServiceCollection services)
+            where MainFeatureModule : IAbstractModule
+        {
+            return new ModuleBaseApp(typeof(MainFeatureModule), services, LoadingType.ByReference);
         }
 
         public static void Initialize(this IApplicationBuilder app, IServiceProvider serviceProvider)

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
 using ModuleLoader.Core.Attributes;
 using ModuleLoader.Core.Extensions;
@@ -13,17 +11,79 @@ namespace ModuleLoader.Core
 {
     public class ModuleLoader
     {
-        public IList<ModuleInfo> LoadModules(IServiceCollection serviceCollection, Type rootModule)
+        public IList<ModuleInfo> LoadModulesByReference(IServiceCollection serviceCollection, Type rootModule)
+        {
+            var featureModuleInfos = new List<ModuleInfo>();
+
+            var featureModuleTypes = new List<Type>();
+            FindModulesRecursive(featureModuleTypes, rootModule);
+
+            foreach (var moduleType in featureModuleTypes)
+            {
+                var moduleInstance = (IAbstractModule)Activator.CreateInstance(moduleType);
+
+                if (moduleInstance == null)
+                    throw new InvalidOperationException(
+                        $"Found module '{moduleType.AssemblyQualifiedName}' can not be instantiated");
+
+                var moduleName = moduleType.GetCustomAttribute<ModuleAttribute>()?.Name;
+                var moduleTags = moduleType.GetCustomAttribute<TagAttribute>()?.Tags;
+
+                var featureModuleInfo = new ModuleInfo(moduleType, moduleName, moduleInstance, moduleTags);
+                featureModuleInfos.Add(featureModuleInfo);
+
+                serviceCollection.AddSingleton(moduleType, moduleInstance);
+            }
+
+            return featureModuleInfos;
+        }
+
+        private void FindModulesRecursive(IList<Type> featureModuleTypes, Type featureModule)
+        {
+            if (!typeof(IAbstractModule).GetTypeInfo().IsAssignableFrom(featureModule))
+                throw new ArgumentException($"Module '{featureModule.AssemblyQualifiedName}' can not be loaded!");
+
+            if (featureModuleTypes.Contains(featureModule))
+                return;
+
+            featureModuleTypes.Add(featureModule);
+
+            foreach (var dependedModuleType in FindModulesByAttribute(featureModule))
+            {
+                FindModulesRecursive(featureModuleTypes, dependedModuleType);
+            }
+        }
+
+        private IList<Type> FindModulesByAttribute(Type featureModule)
+        {
+            var featureModuleTypes = new List<Type>();
+
+            var dependingModules = featureModule
+                .GetCustomAttributes()
+                .OfType<DependingOnModuleAttribute>();
+
+            foreach (var dependingModule in dependingModules)
+            {
+                if (!featureModuleTypes.Contains(dependingModule.DependingModule))
+                    featureModuleTypes.Add(dependingModule.DependingModule);
+            }
+
+            return featureModuleTypes;
+        }
+
+        public IList<ModuleInfo> LoadModulesByDll(IServiceCollection serviceCollection, Type rootModule)
         {
             var moduleInfoList = GetListOfModules();
 
             var configuration = serviceCollection.GetConfiguration();
 
-            foreach (var moduleInfo in moduleInfoList.ToList()) {
+            foreach (var moduleInfo in moduleInfoList.ToList())
+            {
                 var moduleInstance = (IAbstractModule)Activator.CreateInstance(moduleInfo.Type);
 
                 if (moduleInstance == null)
-                    throw new InvalidOperationException($"Found module '{moduleInfo.Type.AssemblyQualifiedName}' can not be instantiated");
+                    throw new InvalidOperationException(
+                        $"Found module '{moduleInfo.Type.AssemblyQualifiedName}' can not be instantiated");
 
                 moduleInfo.Instance = moduleInstance;
                 moduleInstance.ConfigureModules(moduleInfoList, configuration);
@@ -45,7 +105,7 @@ namespace ModuleLoader.Core
             foreach (var assembly in assemblies)
             {
                 var modules = GetModulesFromAssembly(assembly);
-                if(modules.Count <= 0)
+                if (modules.Count <= 0)
                     continue;
 
                 foreach (var module in modules)
@@ -64,7 +124,7 @@ namespace ModuleLoader.Core
         {
             var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            return ModuleFinder.LoadAssemblies(path, SearchOption.TopDirectoryOnly, "");
+            return ModuleAssemblyFinder.LoadAssembliesFromPath(path, SearchOption.TopDirectoryOnly, "");
         }
 
         private IList<Type> GetModulesFromAssembly(Assembly assembly)
@@ -73,7 +133,8 @@ namespace ModuleLoader.Core
                 .Where(type => type.GetCustomAttribute<ModuleAttribute>() != null)
                 .ToList();
 
-            foreach (var module in modules.Where(module => !typeof(IAbstractModule).GetTypeInfo().IsAssignableFrom(module)))
+            foreach (var module in modules.Where(module =>
+                !typeof(IAbstractModule).GetTypeInfo().IsAssignableFrom(module)))
             {
                 throw new ArgumentException($"Module '{module.AssemblyQualifiedName}' can not be loaded!");
             }

@@ -6,15 +6,17 @@ using System.Runtime.Loader;
 
 namespace ModuleLoader.Core
 {
-    internal static class ModuleFinder
+    internal static class ModuleAssemblyFinder
     {
-        public static IEnumerable<string> GetDllsFromFolder(string folderPath, SearchOption searchOption, string moduleBaseName = "")
+        private static IEnumerable<string> GetDllsFromFolder(string folderPath, SearchOption searchOption,
+            string moduleBaseName = "")
         {
             return Directory.GetFiles(folderPath, "*.dll", searchOption)
                 .Where(s => s.Substring(folderPath.Length + 1).Contains(moduleBaseName));
         }
 
-        public static IList<Assembly> LoadAssemblies(string folderPath, SearchOption searchOption, string moduleBaseName = "")
+        public static IList<Assembly> LoadAssembliesFromPath(string folderPath, SearchOption searchOption,
+            string moduleBaseName = "")
         {
             return GetDllsFromFolder(folderPath, searchOption, moduleBaseName)
                 .Select(AssemblyLoadContext.Default.LoadFromAssemblyPath)

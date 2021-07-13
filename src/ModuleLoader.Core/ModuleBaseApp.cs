@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +8,12 @@ using ModuleLoader.Core.Attributes;
 
 namespace ModuleLoader.Core
 {
+    public enum LoadingType
+    {
+        ByReference,
+        ByDll
+    }
+
     public class ModuleBaseApp : IModuleBaseApp
     {
         public Type RootModule { get; }
@@ -17,7 +22,7 @@ namespace ModuleLoader.Core
         public IApplicationBuilder ApplicationBuilder { get; set; }
         public IList<ModuleInfo> ModulesInfo { get; }
 
-        public ModuleBaseApp(Type rootModule, IServiceCollection serviceCollection)
+        public ModuleBaseApp(Type rootModule, IServiceCollection serviceCollection, LoadingType loadingType)
         {
             RootModule = rootModule;
             ServiceCollection = serviceCollection;
@@ -25,18 +30,23 @@ namespace ModuleLoader.Core
             serviceCollection.AddSingleton<IModuleBaseApp>(this);
             serviceCollection.AddSingleton<IModuleInfoContainer>(this);
 
-            // Load modules by type reference
-            //ModulesInfo = LoadModules(serviceCollection, rootModule);
-
-            // Load modules by dll
-            var moduleLoader = new ModuleLoader();
-            ModulesInfo = moduleLoader.LoadModules(serviceCollection, rootModule);
+            ModulesInfo = LoadModules(serviceCollection, rootModule, loadingType);
 
             AddServiceCollection();
 
             AspNetCoreModule.AddMvcBuilder(serviceCollection);
 
             AddInitializeServices();
+        }
+
+        private IList<ModuleInfo> LoadModules(IServiceCollection serviceCollection, Type rootModule, LoadingType loadingType)
+        {
+            var moduleLoader = new ModuleLoader();
+
+            if(loadingType == LoadingType.ByReference)
+                return moduleLoader.LoadModulesByReference(serviceCollection, rootModule);
+
+            return moduleLoader.LoadModulesByDll(serviceCollection, rootModule);
         }
 
         public void Initialize(IApplicationBuilder app, IServiceProvider serviceProvider)
@@ -52,7 +62,7 @@ namespace ModuleLoader.Core
         {
             foreach (var featureModuleInfo in ModulesInfo)
             {
-                ((AbstractModule) featureModuleInfo.Instance).ServiceCollection = ServiceCollection;
+                ((AbstractModule)featureModuleInfo.Instance).ServiceCollection = ServiceCollection;
             }
 
             foreach (var featureModuleInfo in ModulesInfo)
@@ -112,63 +122,8 @@ namespace ModuleLoader.Core
             {
                 modulesString += $"{Environment.NewLine} -> {featureModuleInfo.Type.FullName}";
             }
+
             logger.LogInformation(modulesString);
-        }
-
-        private IList<ModuleInfo> LoadModules(IServiceCollection serviceCollection, Type rootModule)
-        {
-            var featureModuleInfos = new List<ModuleInfo>();
-
-            var featureModuleTypes = new List<Type>();
-            FindModulesRecursive(featureModuleTypes, rootModule);
-
-            foreach (var moduleType in featureModuleTypes)
-            {
-                var moduleInstance = (IAbstractModule)Activator.CreateInstance(moduleType);
-
-                if (moduleInstance == null)
-                    throw new InvalidOperationException($"Found module '{moduleType.AssemblyQualifiedName}' can not be instantiated");
-
-                var featureModuleInfo = new ModuleInfo(moduleType, moduleInstance);
-                featureModuleInfos.Add(featureModuleInfo);
-
-                serviceCollection.AddSingleton(moduleType, moduleInstance);
-            }
-
-            return featureModuleInfos;
-        }
-
-        private void FindModulesRecursive(IList<Type> featureModuleTypes, Type featureModule)
-        {
-            if (!typeof(IAbstractModule).GetTypeInfo().IsAssignableFrom(featureModule))
-                throw new ArgumentException($"Module '{featureModule.AssemblyQualifiedName}' can not be loaded!");
-
-            if(featureModuleTypes.Contains(featureModule))
-                return;
-
-            featureModuleTypes.Add(featureModule);
-
-            foreach (var dependedModuleType in FindModulesByAttribute(featureModule))
-            {
-                FindModulesRecursive(featureModuleTypes, dependedModuleType);
-            }
-        }
-
-        private IList<Type> FindModulesByAttribute(Type featureModule)
-        {
-            var featureModuleTypes = new List<Type>();
-
-            var dependingModules = featureModule
-                .GetCustomAttributes()
-                .OfType<DependingOnModuleAttribute>();
-
-            foreach (var dependingModule in dependingModules)
-            {
-                if (!featureModuleTypes.Contains(dependingModule.DependingModule))
-                    featureModuleTypes.Add(dependingModule.DependingModule);
-            }
-
-            return featureModuleTypes;
         }
     }
 }

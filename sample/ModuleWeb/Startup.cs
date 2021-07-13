@@ -19,7 +19,7 @@ namespace ModuleWeb
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.SetRootModule<WebModule>();
+            services.LoadModulesByDll<WebModule>();
 
             services.AddControllers();
             // services.AddMvc().AddControllersAsServices();
