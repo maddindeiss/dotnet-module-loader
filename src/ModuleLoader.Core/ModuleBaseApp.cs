@@ -62,11 +62,6 @@ namespace ModuleLoader.Core
         {
             foreach (var featureModuleInfo in ModulesInfo)
             {
-                ((AbstractModule)featureModuleInfo.Instance).ServiceCollection = ServiceCollection;
-            }
-
-            foreach (var featureModuleInfo in ModulesInfo)
-            {
                 featureModuleInfo.Instance.PreConfigureServices(ServiceCollection);
             }
 
@@ -101,7 +96,7 @@ namespace ModuleLoader.Core
 
                 foreach (var featureModuleInfo in ModulesInfo)
                 {
-                    featureModuleInfo.Instance.OnApplicationStartup(scope.ServiceProvider);
+                    featureModuleInfo.Instance.ApplicationStartup(scope.ServiceProvider);
                 }
 
                 var services = scope.ServiceProvider.GetServices<IModuleInitialization>();

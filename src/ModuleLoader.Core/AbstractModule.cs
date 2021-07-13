@@ -8,8 +8,6 @@ namespace ModuleLoader.Core
 {
     public abstract class AbstractModule : IAbstractModule
     {
-        protected internal IServiceCollection ServiceCollection { get; set; }
-
         public void PreConfigureServices(IServiceCollection serviceCollection)
         {
 
@@ -25,14 +23,14 @@ namespace ModuleLoader.Core
 
         }
 
-        public virtual void OnApplicationStartup(IServiceProvider serviceProvider)
+        public virtual void ApplicationStartup(IServiceProvider serviceProvider)
         {
 
         }
 
-        public virtual void ConfigureModules(IList<ModuleInfo> moduleContainer, IConfiguration configuration)
+        public virtual void PreConfigureModules(IList<ModuleInfo> modulesInfo, IConfiguration configuration)
         {
-            Console.WriteLine("ConfigureModules: no configuration happened");
+
         }
     }
 }

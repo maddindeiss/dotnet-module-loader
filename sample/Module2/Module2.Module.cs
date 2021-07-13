@@ -12,21 +12,15 @@ namespace Module2
 {
     [Module("module2")]
     [Tag("module")]
-
     [InitializeModule(typeof(InitializeService))]
     public class Module2Module: AbstractModule
     {
-        public Module2Module()
-        {
-            Console.WriteLine("Module2Module Constructor!");
-        }
-
         public override void ConfigureServices(IServiceCollection serviceCollection)
         {
             Console.WriteLine("Module2Module ConfigureServices");
         }
 
-        public override void ConfigureModules(IList<ModuleInfo> modulesInfo, IConfiguration configuration)
+        public override void PreConfigureModules(IList<ModuleInfo> modulesInfo, IConfiguration configuration)
         {
             var myName = this.GetType().GetCustomAttribute<ModuleAttribute>()?.Name;
             var myTags = this.GetType().GetCustomAttribute<TagAttribute>()?.Tags;

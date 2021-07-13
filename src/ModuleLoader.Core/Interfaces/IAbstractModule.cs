@@ -11,9 +11,7 @@ namespace ModuleLoader.Core
         void PreConfigureServices(IServiceCollection serviceCollection);
         void ConfigureServices(IServiceCollection serviceCollection);
         void ConfigureApplication(IApplicationBuilder app, IServiceProvider serviceProvider);
-        void ConfigureModules(IList<ModuleInfo> moduleContainer, IConfiguration configuration);
-
-
-        void OnApplicationStartup(IServiceProvider serviceProvider);
+        void ApplicationStartup(IServiceProvider serviceProvider);
+        void PreConfigureModules(IList<ModuleInfo> moduleContainer, IConfiguration configuration);
     }
 }

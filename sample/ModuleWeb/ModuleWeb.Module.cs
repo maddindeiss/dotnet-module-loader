@@ -8,9 +8,10 @@ namespace ModuleWeb
 {
     [Module("web_module")]
     [Tag("web_module")]
-
-    [DependingOnModule(typeof(Module1Module))]
     [InitializeModule(typeof(InitializeService))]
+
+    // DependingOnModule is just used for module loading by reference
+    [DependingOnModule(typeof(Module1Module))]
     public class WebModule: ModuleLoader.Core.AbstractModule
     {
         public override void ConfigureServices(IServiceCollection serviceCollection)

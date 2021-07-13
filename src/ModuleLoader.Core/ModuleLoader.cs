@@ -41,7 +41,7 @@ namespace ModuleLoader.Core
         private void FindModulesRecursive(IList<Type> featureModuleTypes, Type featureModule)
         {
             if (!typeof(IAbstractModule).GetTypeInfo().IsAssignableFrom(featureModule))
-                throw new ArgumentException($"Module '{featureModule.AssemblyQualifiedName}' can not be loaded!");
+                throw new ArgumentException($"Not possible to load module '{featureModule.FullName}'. Is not type of AbstractModule!");
 
             if (featureModuleTypes.Contains(featureModule))
                 return;
@@ -86,7 +86,7 @@ namespace ModuleLoader.Core
                         $"Found module '{moduleInfo.Type.AssemblyQualifiedName}' can not be instantiated");
 
                 moduleInfo.Instance = moduleInstance;
-                moduleInstance.ConfigureModules(moduleInfoList, configuration);
+                moduleInstance.PreConfigureModules(moduleInfoList, configuration);
             }
 
             foreach (var moduleInfo in moduleInfoList)
@@ -136,7 +136,7 @@ namespace ModuleLoader.Core
             foreach (var module in modules.Where(module =>
                 !typeof(IAbstractModule).GetTypeInfo().IsAssignableFrom(module)))
             {
-                throw new ArgumentException($"Module '{module.AssemblyQualifiedName}' can not be loaded!");
+                throw new ArgumentException($"Not possible to load module '{module.FullName}'. Is not type of AbstractModule!");
             }
 
             return modules;
