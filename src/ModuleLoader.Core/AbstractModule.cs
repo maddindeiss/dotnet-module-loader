@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ModuleLoader.Core
@@ -26,6 +28,11 @@ namespace ModuleLoader.Core
         public virtual void OnApplicationStartup(IServiceProvider serviceProvider)
         {
 
+        }
+
+        public virtual void ConfigureModules(IList<ModuleInfo> moduleContainer, IConfiguration configuration)
+        {
+            Console.WriteLine("ConfigureModules: no configuration happened");
         }
     }
 }

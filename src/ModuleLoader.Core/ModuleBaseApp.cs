@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
@@ -16,7 +15,7 @@ namespace ModuleLoader.Core
         public IServiceProvider ServiceProvider { get; set; }
         public IServiceCollection ServiceCollection { get; }
         public IApplicationBuilder ApplicationBuilder { get; set; }
-        public IReadOnlyList<IModuleInfo> ModulesInfo { get; }
+        public IList<ModuleInfo> ModulesInfo { get; }
 
         public ModuleBaseApp(Type rootModule, IServiceCollection serviceCollection)
         {
@@ -26,43 +25,18 @@ namespace ModuleLoader.Core
             serviceCollection.AddSingleton<IModuleBaseApp>(this);
             serviceCollection.AddSingleton<IModuleInfoContainer>(this);
 
-            ModulesInfo = LoadModules(serviceCollection, rootModule);
+            // Load modules by type reference
+            //ModulesInfo = LoadModules(serviceCollection, rootModule);
+
+            // Load modules by dll
+            var moduleLoader = new ModuleLoader();
+            ModulesInfo = moduleLoader.LoadModules(serviceCollection, rootModule);
+
             AddServiceCollection();
 
             AspNetCoreModule.AddMvcBuilder(serviceCollection);
 
             AddInitializeServices();
-
-            /*
-            var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            Console.WriteLine("");
-            Console.WriteLine("### Module Loading by name ### ");
-            foreach (var assembly in ModuleFinder.LoadAssemblies(path, SearchOption.TopDirectoryOnly))
-            {
-                var types = assembly.GetTypes();
-
-                var modules = types.Where(type => type.GetCustomAttribute<ModuleAttribute>() != null);
-
-                foreach (var module in modules)
-                {
-                    var moduleAttribute = module.GetCustomAttribute<ModuleAttribute>();
-                    if(moduleAttribute == null)
-                        continue;
-
-                    var dependingOnModuleAttribute = module.GetCustomAttributes<DependingOnModuleByNameAttribute>();
-
-                    Console.WriteLine("Found module: " + moduleAttribute.Name);
-                    foreach (var attribute in dependingOnModuleAttribute)
-                    {
-                        Console.WriteLine(" -> Depending on module: " + attribute.DependingModule);
-                    }
-
-                    var moduleInfo = new ModuleInfo(assembly, module, moduleAttribute.Name, null);
-
-                }
-            }
-            Console.WriteLine("");
-            */
         }
 
         public void Initialize(IApplicationBuilder app, IServiceProvider serviceProvider)
@@ -141,12 +115,12 @@ namespace ModuleLoader.Core
             logger.LogInformation(modulesString);
         }
 
-        private IReadOnlyList<ModuleInfo> LoadModules(IServiceCollection serviceCollection, Type mainFeatureModule)
+        private IList<ModuleInfo> LoadModules(IServiceCollection serviceCollection, Type rootModule)
         {
             var featureModuleInfos = new List<ModuleInfo>();
 
             var featureModuleTypes = new List<Type>();
-            FindModulesRecursive(featureModuleTypes, mainFeatureModule);
+            FindModulesRecursive(featureModuleTypes, rootModule);
 
             foreach (var moduleType in featureModuleTypes)
             {

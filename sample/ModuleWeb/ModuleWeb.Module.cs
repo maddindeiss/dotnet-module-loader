@@ -7,7 +7,7 @@ using ModuleWeb.Services;
 namespace ModuleWeb
 {
     [Module("web_module")]
-    [DependingOnModuleByName("module1")]
+    [Tag("web_module")]
 
     [DependingOnModule(typeof(Module1Module))]
     [InitializeModule(typeof(InitializeService))]

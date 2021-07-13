@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ModuleLoader.Core
 {
-    public interface IModuleBaseApp: IModuleInfoContainer
+    public interface IModuleBaseApp : IModuleInfoContainer
     {
         Type RootModule { get; }
         IServiceProvider ServiceProvider { get; set; }

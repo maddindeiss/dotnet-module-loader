@@ -4,6 +4,6 @@ namespace ModuleLoader.Core
 {
     public interface IModuleInfoContainer
     {
-        IReadOnlyList<IModuleInfo> ModulesInfo { get; }
+        IList<ModuleInfo> ModulesInfo { get; }
     }
 }

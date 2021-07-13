@@ -8,6 +8,8 @@ using Module2;
 namespace Module1
 {
     [Module("module1")]
+    [Tag("module")]
+
     [DependingOnModule(typeof(Module2Module))]
     [InitializeModule(typeof(InitializeService))]
     [InitializeModule(typeof(InitializeService2))]
